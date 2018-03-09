@@ -1,10 +1,22 @@
 'use strict';
 
 
-angular.module('ngCart', ['ngCart.directives'])
+angular.module('ngCart', ['ngCart.directives', 'ngCookies', 'angular-storage'])
 
-    .config([function () {
-
+    .config(['storeProvider', function (storeProvider) {
+        if (!supportsLocalStorage()){
+            storeProvider.setStorage('cookieStorage')
+        }
+        function supportsLocalStorage(){
+            var test = 'test';
+            try {
+                localStorage.setItem(test, test);
+                localStorage.removeItem(test);
+                return true;
+            } catch(e) {
+                return false;
+            }
+        }
     }])
 
     .provider('$ngCart', function () {
@@ -27,7 +39,7 @@ angular.module('ngCart', ['ngCart.directives'])
 
     }])
 
-    .service('ngCart', ['$rootScope', '$window', 'ngCartItem', 'store', function ($rootScope, $window, ngCartItem, store) {
+    .service('ngCart', ['$rootScope', '$window', 'ngCartItem', 'ngCartStore', function ($rootScope, $window, ngCartItem, ngCartStore) {
 
         this.init = function(){
             this.$cart = {
@@ -38,7 +50,7 @@ angular.module('ngCart', ['ngCart.directives'])
             };
         };
 
-        this.addItem = function (id, name, price, quantity, data) {
+        this.addItem = function (id, name, price, quantity, data, callback) {
 
             var inCart = this.getItemById(id);
 
@@ -53,6 +65,9 @@ angular.module('ngCart', ['ngCart.directives'])
             }
 
             $rootScope.$broadcast('ngCart:change', {});
+            if (typeof callback !== undefined && typeof callback === 'function'){
+                callback();
+            }
         };
 
         this.getItemById = function (itemId) {
@@ -148,17 +163,28 @@ angular.module('ngCart', ['ngCart.directives'])
             $rootScope.$broadcast('ngCart:change', {});
         };
 
+        this.updateItemQuantity = function(id,quantity){
+            var cart = this.getCart();
+            angular.forEach(cart.items, function(item){
+                if (item.getId() === id){
+                    item.setQuantity(quantity,true);
+                }
+            });
+            this.setCart(cart);
+            $rootScope.$broadcast('ngCart:change', {});
+        };
+
         this.empty = function () {
-            
+
             $rootScope.$broadcast('ngCart:change', {});
             this.$cart.items = [];
             $window.localStorage.removeItem('cart');
         };
-        
+
         this.isEmpty = function () {
-            
+
             return (this.$cart.items.length > 0 ? false : true);
-            
+
         };
 
         this.toObject = function() {
@@ -194,7 +220,7 @@ angular.module('ngCart', ['ngCart.directives'])
         };
 
         this.$save = function () {
-            return store.set('cart', JSON.stringify(this.getCart()));
+            return ngCartStore.set('cart', this.getCart());
         }
 
     }])
@@ -302,28 +328,27 @@ angular.module('ngCart', ['ngCart.directives'])
 
     }])
 
-    .service('store', ['$window', function ($window) {
+    .service('ngCartStore', ['store', function (store) {
 
         return {
 
             get: function (key) {
-                if ( $window.localStorage.getItem(key) )  {
-                    var cart = angular.fromJson( $window.localStorage.getItem(key) ) ;
-                    return JSON.parse(cart);
+                if ( store.get(key) )  {
+                    var cart = store.get(key);
+                    return cart;
                 }
                 return false;
-
             },
-
 
             set: function (key, val) {
 
                 if (val === undefined) {
-                    $window.localStorage.removeItem(key);
+                    // $window.localStorage.removeItem(key);
+                  store.remove(key)
                 } else {
-                    $window.localStorage.setItem( key, angular.toJson(val) );
+                    store.setItem(key, val);
                 }
-                return $window.localStorage.getItem(key);
+                return store.get(key);
             }
         }
     }])
