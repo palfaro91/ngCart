@@ -5,7 +5,7 @@ angular.module('ngCart', ['ngCart.directives', 'ngCookies', 'angular-storage'])
 
     .config(['storeProvider', function (storeProvider) {
         if (!supportsLocalStorage()){
-            storeProvider.setStorage('cookieStorage')
+            storeProvider.setStorage('sessionStorage')
         }
         function supportsLocalStorage(){
             var test = 'test';
@@ -343,10 +343,9 @@ angular.module('ngCart', ['ngCart.directives', 'ngCookies', 'angular-storage'])
             set: function (key, val) {
 
                 if (val === undefined) {
-                    // $window.localStorage.removeItem(key);
                   store.remove(key)
                 } else {
-                    store.setItem(key, val);
+                    store.set(key, val);
                 }
                 return store.get(key);
             }
@@ -378,7 +377,8 @@ angular.module('ngCart.directives', ['ngCart.fulfilment'])
                 quantity:'@',
                 quantityMax:'@',
                 price:'@',
-                data:'='
+                data:'=',
+                doAfter:'&?'
             },
             transclude: true,
             templateUrl: function(element, attrs) {

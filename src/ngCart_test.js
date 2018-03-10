@@ -1,8 +1,8 @@
 'use strict';
 
 describe('ngCart module', function() {
-    beforeEach(module('ngCart'));
-
+  beforeEach(module('angular-storage'));
+  beforeEach(module('ngCart'));
 
     describe('value - version', function() {
         it('should return current version', inject(function(version) {
@@ -99,7 +99,7 @@ describe('ngCart module', function() {
                 it('Have correct getSubTotal', function() {
                     expect($scope.ngCart.getSubTotal()).toEqual(859.94);
                 });
-                
+
                 it('should be able to show isEmpty correctly as false', function() {
                     expect($scope.ngCart.isEmpty()).toEqual(false);
                 });
