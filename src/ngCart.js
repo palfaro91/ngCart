@@ -369,4 +369,4 @@ angular.module('ngCart', ['ngCart.directives', 'ngCookies', 'angular-storage'])
 
     }])
 
-    .value('version', '1.0.0');
+    .value('version', '1.1.1');
