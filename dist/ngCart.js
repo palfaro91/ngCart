@@ -376,7 +376,7 @@ angular.module('ngCart', ['ngCart.directives', 'ngCookies', 'angular-storage'])
 angular.module('ngCart.directives', ['ngCart.fulfilment'])
 
     .controller('CartController',['$scope', '$ngCart', function($scope, $ngCart) {
-        $scope.ngCart = ngCart;
+        $scope.ngCart = $ngCart;
     }])
 
     .directive('ngcartAddtocart', ['$ngCart', function($ngCart){
@@ -403,11 +403,11 @@ angular.module('ngCart.directives', ['ngCart.fulfilment'])
             link:function(scope, element, attrs){
                 scope.attrs = attrs;
                 scope.inCart = function(){
-                    return  ngCart.getItemById(attrs.id);
+                    return  $ngCart.getItemById(attrs.id);
                 };
 
                 if (scope.inCart()){
-                    scope.q = ngCart.getItemById(attrs.id).getQuantity();
+                    scope.q = $ngCart.getItemById(attrs.id).getQuantity();
                 } else {
                     scope.q = parseInt(scope.quantity);
                 }
@@ -459,7 +459,7 @@ angular.module('ngCart.directives', ['ngCart.fulfilment'])
     .directive('ngcartCheckout', [function(){
         return {
             restrict : 'E',
-            controller : ('CartController', ['$rootScope', '$scope', 'ngCart', 'fulfilmentProvider', function($rootScope, $scope, ngCart, fulfilmentProvider) {
+            controller : ('CartController', ['$rootScope', '$scope', '$ngCart', 'fulfilmentProvider', function($rootScope, $scope, $ngCart, fulfilmentProvider) {
                 $scope.ngCart = ngCart;
 
                 $scope.checkout = function () {
