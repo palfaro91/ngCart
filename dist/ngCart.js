@@ -5,7 +5,7 @@ angular.module('ngCart', ['ngCart.directives', 'ngCookies', 'angular-storage'])
 
     .config(['storeProvider', function (storeProvider) {
         if (!supportsLocalStorage()){
-            storeProvider.setStorage('sessionStorage')
+            storeProvider.setStore('sessionStorage')
         }
         function supportsLocalStorage(){
             var test = 'test';
@@ -18,28 +18,32 @@ angular.module('ngCart', ['ngCart.directives', 'ngCookies', 'angular-storage'])
             }
         }
     }])
-
     .provider('$ngCart', function () {
-        this.$get = function () {
-        };
+        var defaultCartStorageKey = 'cart';
+        this.setCartKey = function(key){
+            if (key && angular.isString(key)){
+                defaultCartStorageKey = key;
+            }
+          };
+        this.$get = ["cart", function(cart){
+            cart.setCartKey(defaultCartStorageKey);
+            return cart;
+        }];
     })
-
-    .run(['$rootScope', 'ngCart','ngCartItem', 'store', function ($rootScope, ngCart, ngCartItem, store) {
+    .run(['$rootScope', '$ngCart','ngCartItem', 'store', function ($rootScope, $ngCart, ngCartItem, store) {
 
         $rootScope.$on('ngCart:change', function(){
-            ngCart.$save();
+          $ngCart.$save();
         });
 
-        if (angular.isObject(store.get('cart'))) {
-            ngCart.$restore(store.get('cart'));
-
+        if (angular.isObject(store.get($ngCart.getCartKey()))) {
+            $ngCart.$restore(store.get($ngCart.getCartKey()));
         } else {
-            ngCart.init();
+            $ngCart.init();
         }
-
     }])
 
-    .service('ngCart', ['$rootScope', '$window', 'ngCartItem', 'ngCartStore', function ($rootScope, $window, ngCartItem, ngCartStore) {
+    .service('cart', ['$rootScope', '$window', 'ngCartItem', 'ngCartStore', function ($rootScope, $window, ngCartItem, ngCartStore) {
 
         this.init = function(){
             this.$cart = {
@@ -48,6 +52,16 @@ angular.module('ngCart', ['ngCart.directives', 'ngCookies', 'angular-storage'])
                 tax : null,
                 items : []
             };
+        };
+
+        this.setCartKey = function(key){
+            if (key && angular.isString(key)){
+                this._defaultCartStorageKey = key;
+            }
+          };
+
+        this.getCartKey = function(){
+            return this._defaultCartStorageKey;
         };
 
         this.addItem = function (id, name, price, quantity, data, callback) {
@@ -182,9 +196,7 @@ angular.module('ngCart', ['ngCart.directives', 'ngCookies', 'angular-storage'])
         };
 
         this.isEmpty = function () {
-
             return (this.$cart.items.length > 0 ? false : true);
-
         };
 
         this.toObject = function() {
@@ -220,7 +232,7 @@ angular.module('ngCart', ['ngCart.directives', 'ngCookies', 'angular-storage'])
         };
 
         this.$save = function () {
-            return ngCartStore.set('cart', this.getCart());
+            return ngCartStore.set(this.getCartKey(), this.getCart());
         }
 
     }])
@@ -352,8 +364,8 @@ angular.module('ngCart', ['ngCart.directives', 'ngCookies', 'angular-storage'])
         }
     }])
 
-    .controller('CartController',['$scope', 'ngCart', function($scope, ngCart) {
-        $scope.ngCart = ngCart;
+    .controller('CartController',['$scope', '$ngCart', function($scope, $ngCart) {
+        $scope.ngCart = $ngCart;
 
     }])
 
@@ -363,11 +375,11 @@ angular.module('ngCart', ['ngCart.directives', 'ngCookies', 'angular-storage'])
 
 angular.module('ngCart.directives', ['ngCart.fulfilment'])
 
-    .controller('CartController',['$scope', 'ngCart', function($scope, ngCart) {
+    .controller('CartController',['$scope', '$ngCart', function($scope, $ngCart) {
         $scope.ngCart = ngCart;
     }])
 
-    .directive('ngcartAddtocart', ['ngCart', function(ngCart){
+    .directive('ngcartAddtocart', ['$ngCart', function($ngCart){
         return {
             restrict : 'E',
             controller : 'CartController',
@@ -505,7 +517,7 @@ angular.module('ngCart.fulfilment', [])
     }])
 
 
-.service('ngCart.fulfilment.log', ['$q', '$log', 'ngCart', function($q, $log, ngCart){
+.service('ngCart.fulfilment.log', ['$q', '$log', '$ngCart', function($q, $log, $ngCart){
 
         this.checkout = function(){
 
@@ -513,7 +525,7 @@ angular.module('ngCart.fulfilment', [])
 
             $log.info(ngCart.toObject());
             deferred.resolve({
-                cart:ngCart.toObject()
+                cart:$ngCart.toObject()
             });
 
             return deferred.promise;
@@ -522,16 +534,16 @@ angular.module('ngCart.fulfilment', [])
 
  }])
 
-.service('ngCart.fulfilment.http', ['$http', 'ngCart', function($http, ngCart){
+.service('ngCart.fulfilment.http', ['$http', '$ngCart', function($http, $ngCart){
 
         this.checkout = function(settings){
             return $http.post(settings.url,
-                { data: ngCart.toObject(), options: settings.options});
+                { data: $ngCart.toObject(), options: settings.options});
         }
  }])
 
 
-.service('ngCart.fulfilment.paypal', ['$http', 'ngCart', function($http, ngCart){
+.service('ngCart.fulfilment.paypal', ['$http', '$ngCart', function($http, $ngCart){
 
 
 }]);

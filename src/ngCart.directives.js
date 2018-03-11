@@ -3,11 +3,11 @@
 
 angular.module('ngCart.directives', ['ngCart.fulfilment'])
 
-    .controller('CartController',['$scope', 'ngCart', function($scope, ngCart) {
+    .controller('CartController',['$scope', '$ngCart', function($scope, $ngCart) {
         $scope.ngCart = ngCart;
     }])
 
-    .directive('ngcartAddtocart', ['ngCart', function(ngCart){
+    .directive('ngcartAddtocart', ['$ngCart', function($ngCart){
         return {
             restrict : 'E',
             controller : 'CartController',

@@ -24,7 +24,7 @@ angular.module('ngCart.fulfilment', [])
     }])
 
 
-.service('ngCart.fulfilment.log', ['$q', '$log', 'ngCart', function($q, $log, ngCart){
+.service('ngCart.fulfilment.log', ['$q', '$log', '$ngCart', function($q, $log, $ngCart){
 
         this.checkout = function(){
 
@@ -32,7 +32,7 @@ angular.module('ngCart.fulfilment', [])
 
             $log.info(ngCart.toObject());
             deferred.resolve({
-                cart:ngCart.toObject()
+                cart:$ngCart.toObject()
             });
 
             return deferred.promise;
@@ -41,16 +41,16 @@ angular.module('ngCart.fulfilment', [])
 
  }])
 
-.service('ngCart.fulfilment.http', ['$http', 'ngCart', function($http, ngCart){
+.service('ngCart.fulfilment.http', ['$http', '$ngCart', function($http, $ngCart){
 
         this.checkout = function(settings){
             return $http.post(settings.url,
-                { data: ngCart.toObject(), options: settings.options});
+                { data: $ngCart.toObject(), options: settings.options});
         }
  }])
 
 
-.service('ngCart.fulfilment.paypal', ['$http', 'ngCart', function($http, ngCart){
+.service('ngCart.fulfilment.paypal', ['$http', '$ngCart', function($http, $ngCart){
 
 
 }]);
