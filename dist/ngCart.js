@@ -460,7 +460,7 @@ angular.module('ngCart.directives', ['ngCart.fulfilment'])
         return {
             restrict : 'E',
             controller : ('CartController', ['$rootScope', '$scope', '$ngCart', 'fulfilmentProvider', function($rootScope, $scope, $ngCart, fulfilmentProvider) {
-                $scope.ngCart = ngCart;
+                $scope.ngCart = $ngCart;
 
                 $scope.checkout = function () {
                     fulfilmentProvider.setService($scope.service);
