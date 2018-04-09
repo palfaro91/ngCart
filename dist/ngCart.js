@@ -43,7 +43,7 @@ angular.module('ngCart', ['ngCart.directives', 'ngCookies', 'angular-storage'])
         }
     }])
 
-    .service('cart', ['$rootScope', '$window', 'ngCartItem', 'ngCartStore', function ($rootScope, $window, ngCartItem, ngCartStore) {
+    .service('cart', ['$rootScope', '$window', 'ngCartItem', 'ngCartStore', 'store', function ($rootScope, $window, ngCartItem, ngCartStore, store) {
 
         this.init = function(){
             this.$cart = {
@@ -190,9 +190,9 @@ angular.module('ngCart', ['ngCart.directives', 'ngCookies', 'angular-storage'])
 
         this.empty = function () {
 
-            $rootScope.$broadcast('ngCart:change', {});
             this.$cart.items = [];
-            $window.localStorage.removeItem('cart');
+            $rootScope.$broadcast('ngCart:change', {});
+            store.remove(this.getCartKey());
         };
 
         this.isEmpty = function () {
@@ -369,7 +369,7 @@ angular.module('ngCart', ['ngCart.directives', 'ngCookies', 'angular-storage'])
 
     }])
 
-    .value('version', '1.1.1');
+    .value('version', '1.1.2');
 ;'use strict';
 
 
