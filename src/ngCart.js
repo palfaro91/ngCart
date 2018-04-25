@@ -50,6 +50,7 @@ angular.module('ngCart', ['ngCart.directives', 'ngCookies', 'angular-storage'])
       shipping : null,
       taxRate : null,
       tax : null,
+      discount: null,
       items : []
     };
   };
@@ -99,6 +100,45 @@ angular.module('ngCart', ['ngCart.directives', 'ngCookies', 'angular-storage'])
     return build;
   };
 
+  this.setDiscount = function(discount, save){
+    if (typeof discount === 'object'){
+      if (!discount.amount || !discount.type){
+        $log.error('A discount object must contain properties amount and type');
+        return;
+      }
+      this.$cart.discount = discount;
+    }
+    if (save !== false){
+      $rootScope.$broadcast('ngCart:change', {});
+    }
+    return this.getDiscount();
+  };
+
+  this.getDiscount = function() {
+    return this.getCart().discount;
+  };
+
+  this.getDiscountedTotal = function(){
+    var discount = this.getCart().discount;
+    if (discount !== null){
+      if (typeof discount === 'object' && discount.type){
+        switch (discount.type) {
+          case 'percent':
+            var discountTotal = this.getSubTotal() - (this.getSubTotal() * (discount.amount / 100));
+            return +parseFloat(discountTotal).toFixed(2);
+            break;
+          case 'dollar':
+            return +parseFloat(this.getSubTotal() - discount.amount).toFixed(2);
+            break;
+          default:
+            return +parseFloat(this.getSubTotal() - discount.amount).toFixed(2);
+        }
+      }
+      return +parseFloat(this.getSubTotal() - discount.amount).toFixed(2);
+    }
+    return null;
+  };
+
   this.setShipping = function(shipping){
     this.$cart.shipping = shipping;
     return this.getShipping();
@@ -118,7 +158,13 @@ angular.module('ngCart', ['ngCart.directives', 'ngCookies', 'angular-storage'])
     return this.$cart.taxRate
   };
 
-  this.getTax = function(){
+  this.getTax = function(amount){
+    var discount = this.getDiscount();
+    if (discount !== null){
+      var discountedAmount = this.getDiscountedTotal();
+      console.log("my amount ", +parseFloat(((discountedAmount/100) * this.getCart().taxRate )).toFixed(2));
+      return +parseFloat(((discountedAmount/100) * this.getCart().taxRate )).toFixed(2);
+    }
     return +parseFloat(((this.getSubTotal()/100) * this.getCart().taxRate )).toFixed(2);
   };
 
@@ -157,6 +203,12 @@ angular.module('ngCart', ['ngCart.directives', 'ngCookies', 'angular-storage'])
   };
 
   this.totalCost = function () {
+    var discount = this.getDiscount();
+    if (discount !== null){
+      var discountedSubTotal = this.getDiscountedTotal();
+      console.log('fafr ', parseFloat(discountedSubTotal + this.getShipping() + this.getTax()));
+      return +parseFloat(discountedSubTotal + this.getShipping() + this.getTax()).toFixed(2);
+    }
     return +parseFloat(this.getSubTotal() + this.getShipping() + this.getTax()).toFixed(2);
   };
 
