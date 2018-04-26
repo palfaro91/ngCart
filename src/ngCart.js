@@ -279,6 +279,7 @@ angular.module('ngCart', ['ngCart.directives', 'ngCookies', 'angular-storage'])
     _self.init();
     _self.$cart.shipping = storedCart.shipping;
     _self.$cart.tax = storedCart.tax;
+    _self.$cart.discount = storedCart.discount;
 
     angular.forEach(storedCart.items, function (item) {
       _self.$cart.items.push(new ngCartItem(item._id,  item._name, item._price, item._quantity, item._data));
@@ -424,4 +425,4 @@ angular.module('ngCart', ['ngCart.directives', 'ngCookies', 'angular-storage'])
 
 }])
 
-.value('version', '1.1.3');
+.value('version', '1.1.4');
