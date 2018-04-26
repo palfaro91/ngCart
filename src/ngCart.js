@@ -118,12 +118,15 @@ angular.module('ngCart', ['ngCart.directives', 'ngCookies', 'angular-storage'])
     return this.getCart().discount;
   };
 
-  this.getDiscountedTotal = function(){
+  this.getDiscountedTotal = function(percentOff){
     var discount = this.getCart().discount;
     if (discount !== null){
       if (typeof discount === 'object' && discount.type){
         switch (discount.type) {
           case 'percent':
+            if (percentOff){
+              return +parseFloat(this.getSubTotal() * (discount.amount / 100)).toFixed(2);
+            }
             var discountTotal = this.getSubTotal() - (this.getSubTotal() * (discount.amount / 100));
             return +parseFloat(discountTotal).toFixed(2);
             break;

@@ -118,12 +118,15 @@ angular.module('ngCart', ['ngCart.directives', 'ngCookies', 'angular-storage'])
     return this.getCart().discount;
   };
 
-  this.getDiscountedTotal = function(){
+  this.getDiscountedTotal = function(percentOff){
     var discount = this.getCart().discount;
     if (discount !== null){
       if (typeof discount === 'object' && discount.type){
         switch (discount.type) {
           case 'percent':
+            if (percentOff){
+              return +parseFloat(this.getSubTotal() * (discount.amount / 100)).toFixed(2);
+            }
             var discountTotal = this.getSubTotal() - (this.getSubTotal() * (discount.amount / 100));
             return +parseFloat(discountTotal).toFixed(2);
             break;
@@ -279,6 +282,7 @@ angular.module('ngCart', ['ngCart.directives', 'ngCookies', 'angular-storage'])
     _self.init();
     _self.$cart.shipping = storedCart.shipping;
     _self.$cart.tax = storedCart.tax;
+    _self.$cart.discount = storedCart.discount;
 
     angular.forEach(storedCart.items, function (item) {
       _self.$cart.items.push(new ngCartItem(item._id,  item._name, item._price, item._quantity, item._data));
@@ -424,7 +428,7 @@ angular.module('ngCart', ['ngCart.directives', 'ngCookies', 'angular-storage'])
 
 }])
 
-.value('version', '1.1.3');
+.value('version', '1.1.4');
 ;'use strict';
 
 
