@@ -165,7 +165,6 @@ angular.module('ngCart', ['ngCart.directives', 'ngCookies', 'angular-storage'])
     var discount = this.getDiscount();
     if (discount !== null){
       var discountedAmount = this.getDiscountedTotal();
-      console.log("my amount ", +parseFloat(((discountedAmount/100) * this.getCart().taxRate )).toFixed(2));
       return +parseFloat(((discountedAmount/100) * this.getCart().taxRate )).toFixed(2);
     }
     return +parseFloat(((this.getSubTotal()/100) * this.getCart().taxRate )).toFixed(2);
@@ -209,7 +208,6 @@ angular.module('ngCart', ['ngCart.directives', 'ngCookies', 'angular-storage'])
     var discount = this.getDiscount();
     if (discount !== null){
       var discountedSubTotal = this.getDiscountedTotal();
-      console.log('fafr ', parseFloat(discountedSubTotal + this.getShipping() + this.getTax()));
       return +parseFloat(discountedSubTotal + this.getShipping() + this.getTax()).toFixed(2);
     }
     return +parseFloat(this.getSubTotal() + this.getShipping() + this.getTax()).toFixed(2);
@@ -428,4 +426,4 @@ angular.module('ngCart', ['ngCart.directives', 'ngCookies', 'angular-storage'])
 
 }])
 
-.value('version', '1.1.4');
+.value('version', '1.1.5');
